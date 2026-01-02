@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<title>Digital Live Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+:root{
+  --g:#00ff88; --bg:#060b10; --card:#0b1620;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:radial-gradient(1200px 600px at 50% -20%, #0e2a1d, var(--bg));
+  color:#e9fff3; font-family:system-ui,-apple-system,Segoe UI,Roboto;
+}
+.wrap{max-width:980px;margin:24px auto;padding:16px}
+.header{
+  display:flex;justify-content:space-between;align-items:center;
+  border:1px solid #123; border-radius:16px; padding:14px 18px;
+  background:linear-gradient(180deg,#0c1f16,#07110c);
+  box-shadow:0 0 24px rgba(0,255,136,.15);
+}
+.badge{color:#000;background:var(--g);padding:6px 12px;border-radius:999px;font-weight:700}
+.grid{
+  margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px;
+}
+.card{
+  background:linear-gradient(180deg,#0e2030,#081421);
+  border:1px solid #143; border-radius:16px; padding:14px;
+  box-shadow:0 0 18px rgba(0,255,136,.12);
+}
+.card h3{margin:0 0 10px 0;color:#bfffe3}
+.actions button{
+  width:100%; padding:12px; margin:6px 0; border-radius:12px;
+  border:1px solid #1a4; background:#0c251b; color:#e9fff3; font-weight:700;
+}
+.actions button.primary{background:var(--g); color:#000}
+video{width:100%; border-radius:14px; background:#000; margin-top:10px}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px}
+.kv div{padding:8px;border-radius:10px;background:#071722;border:1px solid #123}
+.small{opacity:.8;font-size:13px}
+.footer{margin-top:14px;text-align:center;opacity:.7}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h2 style="margin:0">Digital Live Console</h2>
+      <div class="small">كل شيء بموافقة المستخدم فقط</div>
+    </div>
+    <div class="badge">SECURE</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>البث المباشر</h3>
+      <div class="actions">
+        <button class="primary" onclick="startCamera()">تشغيل الكاميرا + المايك</button>
+        <button onclick="shareScreen()">مشاركة الشاشة</button>
+      </div>
+      <video id="cam" autoplay playsinline></video>
+      <video id="screen" autoplay playsinline></video>
+    </div>
+
+    <div class="card">
+      <h3>معلومات (بموافقة)</h3>
+      <div class="actions">
+        <button onclick="getLocation()">إظهار الموقع</button>
+        <button onclick="getDevice()">معلومات الجهاز</button>
+      </div>
+      <div class="kv">
+        <div>الموقع</div><div id="loc">—</div>
+        <div>الجهاز</div><div id="dev">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">يمكن إيقاف أي إذن من إعدادات المتصفح في أي وقت</div>
+</div>
+
+<script>
+async function startCamera(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    document.getElementById('cam').srcObject = stream;
+  }catch(e){ alert('تم رفض الكاميرا أو المايك'); }
+}
+
+async function shareScreen(){
+  try{
+    const s = await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
+    document.getElementById('screen').srcObject = s;
+  }catch(e){ alert('مشاركة الشاشة غير مدعومة أو تم الرفض'); }
+}
+
+function getLocation(){
+  if(!navigator.geolocation) return alert('المتصفح لا يدعم الموقع');
+  navigator.geolocation.getCurrentPosition(
+    p=>{
+      const {latitude,longitude} = p.coords;
+      document.getElementById('loc').innerText =
+        `Lat: ${latitude.toFixed(5)} , Lng: ${longitude.toFixed(5)}`;
+    },
+    _=>alert('تم رفض مشاركة الموقع')
+  );
+}
+
+function getDevice(){
+  document.getElementById('dev').innerText = navigator.userAgent;
+}
+</script>
+
+</body>
+</html>
